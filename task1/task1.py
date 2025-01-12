@@ -1,5 +1,8 @@
-n = int(input("n = "))
-m = int(input("m = "))
+import sys
+
+n = int(sys.argv[1])
+m = int(sys.argv[2])
+
 i = 1
 while True:
     print(i, end='')

@@ -1,51 +1,54 @@
 import sys
+import re
 from fractions import Fraction
 
-def read_circle_file(file_path):
-    with open(file_path, 'r') as file:
-        x, y = map(Fraction, file.readline().split())
-        R = Fraction(file.readline().strip())
-    
-    return x, y, R
 
-def read_points_file(file_path):
-    with open(file_path, 'r') as file:
-        points = [tuple(map(Fraction, line.split())) for line in file]
-    
-    if not (1 <= len(points) <= 100):
-        raise ValueError("Количество точек должно быть от 1 до 100.")
-    
-    for point in points:
-        for coord in point:
-            if not (-1e38 <= coord.numerator / coord.denominator <= 1e38):
-                raise ValueError("Координаты точек должны быть в диапазоне от -10^38 до 10^38.")
-    
-    return points
+file_path1 = sys.argv[1]
+file_path2 = sys.argv[2]
 
-def point_position(circle_x, circle_y, R, point_x, point_y):
-    hypotenuse = (point_x - circle_x) ** 2 + (point_y - circle_y) ** 2
-    
-    if hypotenuse == R ** 2:
-        return 0
-    elif hypotenuse < R ** 2:
-        return 1
+def readFile1(file_path1):
+
+    with open(file_path1) as file:
+        content = file.read()
+        content = re.split('\n| ',content)
+        cX, cY, R = content[0], content[1], content[2]
+        cX, cY, R = Fraction(cX),Fraction(cY),Fraction(R)
+    return cX, cY, R
+
+def readFile2(file_path2):
+
+    with open(file_path2) as file:
+        content = file.read()
+        content = content.split('\n')
+        dots = []
+        count = 0
+        for dot in content:
+            count+=1
+            if count <=100:
+                dot.strip()
+                dotX,dotY = map(Fraction, dot.split())
+                dots.append((dotX,dotY))
+            else:
+                print('Слишком много точек')
+                sys.exit(0)
+        return dots
+
+def isInside(cX, cY, R, dotX,dotY):
+
+    hypotenuse = (dotX-cX)*(dotX-cX)+(dotY-cY)*(dotY-cY)
+    if hypotenuse < R*R:
+        return 1 # Точка принадлежит окружности
+    elif hypotenuse == R*R:
+        return 0 # Точка лежит НА окружности
     else:
-        return 2
+        return 2 # Точка НЕ принадлежит окружности
 
 def main():
-    if len(sys.argv) != 3:
-        print("Пример использования: python script.py <circle_file> <points_file>")
-        return
+    cX,cY,R = readFile1(file_path1)
+    dots = readFile2(file_path2)
+    for dot in dots:
+        dotX,dotY = dot
+        print(isInside(cX,cY,R,dotX,dotY))
+        
 
-    circle_file = sys.argv[1]
-    points_file = sys.argv[2]
-
-    circle_x, circle_y, R = read_circle_file(circle_file)
-    points = read_points_file(points_file)
-
-    for point_x, point_y in points:
-        result = point_position(circle_x, circle_y, R, point_x, point_y)
-        print(result)
-
-if __name__ == "__main__":
-    main()
+main()
